@@ -1,0 +1,59 @@
+#include <msp430g2553.h>
+
+#define LED_V BIT0
+#define LED_R BIT6
+#define BTN BIT3
+
+void main(void)
+{
+	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+	
+    DCOCTL = 0;
+    BCSCTL1 = CALBC1_1MHZ;
+    DCOCTL = CALDCO_1MHZ;
+
+    BCSCTL3 |= LFXT1S_2;
+
+    P1DIR |= LED_V+LED_R;
+
+    P1REN |= BTN;
+    P1OUT |= BTN;
+
+    P1IE |= BTN;
+    P1IES &= ~BTN;
+    P1IFG &= ~BTN;
+
+    __bis_SR_register(CPUOFF+GIE);
+
+}
+
+#pragma vector = PORT1_VECTOR
+__interrupt void _BTN(void)
+{
+
+    P1OUT ^=LED_V;
+    //LIMPIAR BANDER DE INTERRUPCIÓN Y DESHABILITAR INTERRUPCON DEL BOTON
+    P1IFG &= ~BTN;
+    P1IE &= ~BTN;
+
+    //CONFIGURACION INTERUPCION DEL PERRO GUARDIAN
+    //PASWORD + SALUDO + MODO INTERVALO + SELECTOR+INTERVALO SELECCIONADO
+    //WDTCTL = WDTPW + WDTCNTCL + WDTTMSEL + WDTSSEL + WDTIS0
+    WDTCTL = WDT_ADLY_250; //HACE LO MISMO QUE LAS LINEAS DE ARRIBA
+    IFG1 &= ~WDTIFG;
+    IE1 |= WDTIE;
+    P1OUT ^= LED_R;
+
+}
+
+#pragma vector = WDT_VECTOR
+__interrupt void WDT_debounce(void)
+{
+    P1OUT ^= LED_R;
+    //LIMPIAMOS BANDERA Y DESHABILITAMOS INTERRUPCION DEL PERRO
+    IFG1 |= WDTIFG;
+    IE1 &= ~WDTIE;
+    WDTCTL = WDTPW | WDTHOLD;
+    //HABILITAR INTERRUPCION DEL BOTON Y DEBOUNCE ESTÁ COMPLETO
+    P1IE |= BTN;
+}
