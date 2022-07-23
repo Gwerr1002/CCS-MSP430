@@ -1,0 +1,145 @@
+#include <msp430g2553.h>
+#include <notaslib.h>
+
+#define BTN BIT3
+void medio(); void intro();
+
+void main(void)
+{   WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+
+    if (CALBC1_1MHZ == 0xFF){
+        while(1);
+    }
+    DCOCTL = 0;
+    BCSCTL1 = CALBC1_1MHZ;
+    DCOCTL = CALDCO_1MHZ;
+
+    P1OUT = 0;
+    P1DIR |= BIT1;
+    P1REN |= BTN;
+
+    P1OUT |= BTN;
+
+    unsigned volatile char i;
+    while(1){
+
+        while((P1IN & BTN ) == BTN);
+        while((P1IN & BTN ) != BTN);
+
+        for(i=3;i>0;i--){
+            intro();
+        }
+
+        SOL2(110);_delay_cycles(6000);
+        SOL2(110);
+        __delay_cycles(6000);
+        SOL2(120);
+        RESOS2(60);
+        LASOS2(55);
+        __delay_cycles(2500);
+        SOL2(100);
+        RESOS2(60);
+        LASOS2(55);
+        __delay_cycles(2500);
+        SOL2(100);
+        __delay_cycles(10000);
+
+        RE3(150);
+        __delay_cycles(6000);
+        RE3(150);
+        __delay_cycles(6000);
+        RE3(150);
+        RESOS3(75);
+        __delay_cycles(2500);
+        LASOS2(75);
+        __delay_cycles(2500);
+        SOL2(100);
+        RESOS2(60);
+        LASOS2(55);
+        __delay_cycles(2500);
+        SOL2(100);
+        __delay_cycles(10000);
+
+        medio();
+
+        RESOS2(50);
+        __delay_cycles(2500);
+        FASOS2(55);
+        __delay_cycles(2500);
+        RESOS2(50);
+        __delay_cycles(2500);
+        FASOS2(45);
+        LASOS2(25);
+        __delay_cycles(2500);
+        SOL2(55);
+        LASOS2(30);
+        RE3(300);
+
+        medio();
+
+        RESOS2(70);
+        __delay_cycles(2500);
+        FASOS2(75);
+        __delay_cycles(2500);
+        RESOS2(70);
+        __delay_cycles(2500);
+        LASOS2(55);
+        __delay_cycles(2500);
+        SOL2(60);
+        RESOS2(50);
+        LASOS2(45);
+        __delay_cycles(2500);
+        SOL2(100);
+        __delay_cycles(10000);
+    }
+
+}
+
+void medio(){
+    __delay_cycles(10000);
+    SOL3(130);
+    SOL2(80);
+    SOL3(120);
+    __delay_cycles(2500);
+    FASOS3(80);
+    __delay_cycles(2500);
+    FA3(70);
+    MI3(60);
+    RESOS3(60);
+    MI3(60);
+    __delay_cycles(2500);
+    SOL2(85);
+    __delay_cycles(2500);
+    RE3(85);
+    __delay_cycles(2500);
+    DOSOS3(65);
+    DO3(65);
+    SI2(55);
+    LASOS2(55);
+    SI2(55);
+    __delay_cycles(10000);
+}
+
+void intro(){
+    __delay_cycles(20000);
+    SOL2(100);
+    __delay_cycles(6000);
+    SOL2(80);
+    SOL2(20);
+    __delay_cycles(8000);
+    SOL2(20);
+    __delay_cycles(8000);
+    SOL2(20);
+    __delay_cycles(8000);
+    SOL2(20);
+    __delay_cycles(8000);
+    SOL2(20);
+    __delay_cycles(8000);
+    FASOS2(80);
+    __delay_cycles(8000);
+    RESOS3(30);
+    FASOS3(30);
+    RESOS3(150);
+    __delay_cycles(20000);
+}
